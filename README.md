@@ -54,10 +54,12 @@
    ```javascript
    # 1. b c 的值是多少
    var a = 100;
-
-   function testResult(){    // 进入函数体内，创建当前执行上下文，创建阶段=>执行阶段
-     var b = 2 * a;          // 创建阶段：创建变量对象，建立作用域，确定this指向
-     var a = 200; 			  // 代码执行阶段，根据顺序，依次执行指令或数据操作（+/-/*）
+	// 进入函数体内，创建当前执行上下文，创建阶段=>执行阶段
+	// 创建阶段：创建变量对象，建立作用域，确定this指向
+	// 代码执行阶段：变量对象=>变为活动对象，才可以访问对象的属性及其值，根据顺序，依次执行指令或数据操作（+/-/*）
+   function testResult(){    
+     var b = 2 * a;          
+     var a = 200; 			  
      var c = a / 2; 
      console.log(b);
      console.log(c);
@@ -165,6 +167,7 @@
    // 输出值为 undefined 0 1 2
 
    // # 分析c: c = fun(0).fun(1);
+   // 输出值为 undefined 0 1 1
    // 从分析b可以直接写出c的函数体内实际流程,fun(0)执行时第一次输出undefined
    c = fun(0).fun(1) = function(1,0){
      console.log(o); // n = 1 , o = 0 第二次输出 o = 0
@@ -181,4 +184,70 @@
      return ...
    }
    //同理c.fun(3) 输出值也为 1
+   #############################################
+   
+   # 4. 分别弹出的内容是什么
+	var tt = "MR_LP -->  QQ ：3206064928";
+    function test(){
+      alert(tt);
+      var tt = "张三";
+      alert(tt);
+    }
+    test();
+    // 从window最外层执行上下文环境开始分析
+    // window执行上下文创建阶段
+    actual window {
+      function test () {...}
+      var tt = undefined;
+      tt = "MR_LP -->  QQ ：3206064928";
+      test();
+    }
+    // 代码执行阶段 遇到test()进入test函数的上下文执行环境创建阶段
+	actual test{
+      var tt = undefined;
+      alert(tt);
+      tt = "张三";
+      alert(tt);
+	}
+    // 进入test的执行阶段，test执行上下文创建的变量对象变为活动对象，
+    // 按照作用域链的顺序，先在自身test的执行上下文中寻找属性或值，再向链底端寻找
+    // 其属性和值便能被访问，代码变按上述顺序依次执行
+    // 输出结果为： undefined  '张三'
+
+    # 5. 以下输出值
+    function Foo(){
+      getName = function(){console.log(1)}
+      return this;
+    }
+    Foo.getName = function(){console.log(2)}
+    Foo.prototype.getName = function(){console.log(3)}
+    var getName = function(){console.log(4)}
+    function getName(){console.log(5)}
+	
+    Foo.getName();  
+    getName();
+    Foo().getName();
+    getName();
+    new Foo.getName();
+    new Foo().getName();
+    new new Foo().getName();
+      
+    // 代码执行分析
+	// 最外层执行环境window
+    actual window{
+		function Foo
+      	function getName
+      	var getName = undefined;
+      	Foo.getName = function(){console.log(2)}
+        Foo.prototype.getName = function(){console.log(3)}
+        getName = function(){console.log(4)}
+        
+    }
+    Foo.getName();// Foo.getName = function(){console.log(2)} => 2
+    getName();// function(){console.log(4)} => 4
+    Foo().getName();// Foo() => window.getName = function(){console.log(1)} =>1
+    new Foo.getName();// new function(){console.log(2)} => 2
+    new Foo().getName();// new this(Foo).getName() => new Foo.prototype.getName => 3
+   	new new Foo().getName();// new new Foo.prototype.getName => 3
+    
    ```
