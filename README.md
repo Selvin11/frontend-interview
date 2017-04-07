@@ -241,8 +241,8 @@
       	Foo.getName = function(){console.log(2)}
         Foo.prototype.getName = function(){console.log(3)}
         getName = function(){console.log(4)}
-        
     }
+    
     Foo.getName();// Foo.getName = function(){console.log(2)} => 2
     getName();// function(){console.log(4)} => 4
     Foo().getName();// Foo() => window.getName = function(){console.log(1)} =>1
