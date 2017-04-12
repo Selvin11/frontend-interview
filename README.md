@@ -4,7 +4,9 @@
 
 [1. 假设现有一篇文章触及到一些敏感词汇,如 ["习近平","周永康","中共","6.4"] 等内容。如何在文章中发现这些敏感词，并将背景设置为红色或者改变字体颜色并标示出来？](#1)
 
-[2. 下列输出值是什么？](#2)
+[2. 下列输出值是什么？](#2) 
+
+[3. 实现简单的模板替换](#3)
 
 <h3 id="1">1. 假设现有一篇文章触及到一些敏感词汇,如 ["习近平","周永康","中共","6.4"] 等内容。如何在文章中发现这些敏感词，并将背景设置为红色或者改变字体颜色并标示出来？</h3>
 
@@ -251,3 +253,46 @@
    	new new Foo().getName();// new new Foo.prototype.getName => 3
     
    ```
+<h3 id="3">3. 实现简单的模板替换</h3>
+
+```javascript
+// 题目
+var greeting = 'My name is ${name}, age ${age}, I am a ${job.jobName}';
+var employee = {
+    name: 'XiaoMing',
+    age: 11,
+    job: {
+      jobName: 'designer',
+      jobLevel: 'senior'
+    } 
+};
+// var result = greeting.render(employee);
+// console.log(result);  => 'My name is XiaoMing, age 11, I am a designer'
+
+// 方案一：常规正则方案
+String.prototype.render = function(obj){
+  var self = this,
+      rg = /\${(.+?)}/,
+      out = ''; // 匹配${}中的内容
+  while(rg.test(self)){
+    // 获取每次匹配${}中的内容
+    out = self.match(/\$\{(.+?)\}/);
+    // 读取对象中的属性对应值
+    var statement = 'return obj.' + out[1]; 
+    var joinObj = new Function('obj', statement);
+
+    self = self.replace(/\${(.+?)}/,joinObj(obj,statement));
+  }
+
+  console.log(self);
+
+  return self;
+}
+// 方案二：with + eval + ``
+String.prototype.render = function(obj){
+  var self = this;
+  with(obj){
+    return eval('`' + self + '`');
+  }
+}
+```
