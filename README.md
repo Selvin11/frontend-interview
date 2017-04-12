@@ -276,12 +276,12 @@ String.prototype.render = function(obj){
       out = ''; // 匹配${}中的内容
   while(rg.test(self)){
     // 获取每次匹配${}中的内容
-    out = self.match(/\$\{(.+?)\}/);
+    out = self.match(rg);
     // 读取对象中的属性对应值
     var statement = 'return obj.' + out[1]; 
     var joinObj = new Function('obj', statement);
 
-    self = self.replace(/\${(.+?)}/,joinObj(obj,statement));
+    self = self.replace(rg,joinObj(obj,statement));
   }
 
   console.log(self);
